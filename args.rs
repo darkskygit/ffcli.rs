@@ -1,4 +1,13 @@
+use crate::utils::{Fail, LogLevel, Packer, StructOpt};
 use std::fmt;
+
+#[derive(Debug, Fail)]
+pub enum ArgsError {
+    #[fail(display = "未知错误: {}", name)]
+    UnknownError { name: String },
+}
+
+pub type ArgsResult<T> = Result<T, ArgsError>;
 
 struct VideoFilterParams {
     key: String,
@@ -14,28 +23,22 @@ impl fmt::Display for VideoFilterParams {
     }
 }
 
-impl VideoFilterParams {
-    fn new(key: String, value: Option<String>) -> VideoFilterParams {
-        VideoFilterParams { key, value }
-    }
-}
-
-struct VideoFilter {
+pub struct VideoFilter {
     input: String,
     output: String,
     params: Vec<VideoFilterParams>,
 }
 
 impl VideoFilter {
-    fn new() -> VideoFilter {
+    pub fn new(input: String, output: String) -> VideoFilter {
         VideoFilter {
-            input: "".to_string(),
-            output: "".to_string(),
+            input,
+            output,
             params: Vec::new(),
         }
     }
-    fn params(&mut self, key: String, value: Option<String>) -> &VideoFilter {
-        self.params.push(VideoFilterParams::new(key, value));
+    pub fn params(mut self, key: String, value: std::option::Option<String>) -> VideoFilter {
+        self.params.push(VideoFilterParams { key, value });
         self
     }
 }
@@ -68,16 +71,48 @@ impl fmt::Display for VideoFilter {
     }
 }
 
+pub enum FFmpegDefaultArgs {
+    None,
+    Quiet,
+    General,
+}
+
 pub struct FFmpegArgs {
-    vf: VideoFilter,
+    vf: Option<VideoFilter>,
     filter_complex: Vec<VideoFilter>,
+    argv: Packer,
 }
 
 impl FFmpegArgs {
     pub fn new() -> FFmpegArgs {
         FFmpegArgs {
-            vf: VideoFilter::new(),
+            vf: None,
             filter_complex: Vec::new(),
+            argv: Packer::from_args(),
         }
+    }
+    pub fn vf(mut self, vf: VideoFilter) -> FFmpegArgs {
+        self.vf = Some(vf);
+        self
+    }
+    pub fn filter(mut self, vf: VideoFilter) -> FFmpegArgs {
+        self.filter_complex.push(vf);
+        self
+    }
+    pub fn build(self, default: Option<FFmpegDefaultArgs>) -> ArgsResult<Vec<String>> {
+        let mut args = vec!["-hide_banner", "-y"];
+        args.append(&mut match default {
+            None | Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
+            Some(FFmpegDefaultArgs::Quiet) => vec![
+                "-loglevel",
+                if self.argv.verbosity.log_level() > LogLevel::Info {
+                    "warning"
+                } else {
+                    "error"
+                },
+            ],
+            Some(FFmpegDefaultArgs::General) => vec!["-stats"],
+        });
+        Ok(args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>())
     }
 }
