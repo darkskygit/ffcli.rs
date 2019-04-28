@@ -23,6 +23,12 @@ impl From<ArgsError> for FFmpegError {
 pub fn info(default: Option<FFmpegDefaultArgs>) -> FFmpegResult<Vec<String>> {
     let filter =
         VideoFilter::new("0".to_string(), "1".to_string()).params("test".to_string(), None);
-    let result = FFmpegArgs::new().filter(filter).build(default)?;
+    let filter2 = VideoFilter::new("asd".to_string(), "asdwwed".to_string())
+        .params("alpha".to_string(), Some("qwlidouoasd:asdsd".to_string()))
+        .params("sddd".to_string(), None);
+    let result = FFmpegArgs::new()
+        .filter(filter)
+        .filter(filter2)
+        .build(default)?;
     Ok(result)
 }

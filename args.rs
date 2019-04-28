@@ -48,7 +48,7 @@ impl fmt::Display for VideoFilter {
         let (has_in, has_out, has_params) = (
             self.input.len() > 0,
             self.output.len() > 0,
-            self.params.len() == 0,
+            self.params.len() > 0,
         );
         let filter = if has_params {
             self.params
@@ -113,6 +113,24 @@ impl FFmpegArgs {
             ],
             Some(FFmpegDefaultArgs::General) => vec!["-stats"],
         });
+        let filter_params = match self.vf {
+            Some(filter) => vec!["-vf".to_string(), filter.to_string()],
+            None => {
+                if self.filter_complex.len() > 0 {
+                    vec![
+                        "-filter_complex".to_string(),
+                        self.filter_complex
+                            .iter()
+                            .map(|arg| arg.to_string())
+                            .collect::<Vec<_>>()
+                            .join(";"),
+                    ]
+                } else {
+                    vec![]
+                }
+            }
+        };
+        args.append(&mut filter_params.iter().map(AsRef::as_ref).collect());
         Ok(args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>())
     }
 }
