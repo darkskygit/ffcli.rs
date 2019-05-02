@@ -1,4 +1,4 @@
-use crate::utils::{Fail, LogLevel, Packer, StructOpt};
+use crate::utils::{Fail, LogLevel, Packer, StructOpt, SubPacker};
 use std::fmt;
 
 #[derive(Debug, Fail)]
@@ -30,12 +30,26 @@ pub struct VideoFilter {
 }
 
 impl VideoFilter {
+    pub fn new_str(input: &str, output: &str) -> VideoFilter {
+        VideoFilter::new(input.to_string(), output.to_string())
+    }
     pub fn new(input: String, output: String) -> VideoFilter {
         VideoFilter {
             input,
             output,
             params: Vec::new(),
         }
+    }
+    pub fn params_str(self, key: &str, value: &str) -> VideoFilter {
+        let val_str = value.to_string();
+        self.params(
+            key.to_string(),
+            if val_str.len() > 0 {
+                Some(val_str)
+            } else {
+                None
+            },
+        )
     }
     pub fn params(mut self, key: String, value: std::option::Option<String>) -> VideoFilter {
         self.params.push(VideoFilterParams { key, value });
@@ -65,6 +79,8 @@ impl fmt::Display for VideoFilter {
             write!(f, "[{}]{}", self.input, filter)
         } else if has_out && !has_in {
             write!(f, "{}[{}]", filter, self.output)
+        } else if has_params {
+            write!(f, "{}", filter)
         } else {
             write!(f, "")
         }
@@ -78,25 +94,71 @@ pub enum FFmpegDefaultArgs {
 }
 
 pub struct FFmpegArgs {
-    vf: Option<VideoFilter>,
-    filter_complex: Vec<VideoFilter>,
     argv: Packer,
+    filters: Vec<VideoFilter>,
+    params: Vec<String>,
 }
 
 impl FFmpegArgs {
     pub fn new() -> FFmpegArgs {
         FFmpegArgs {
-            vf: None,
-            filter_complex: Vec::new(),
             argv: Packer::from_args(),
+            filters: Vec::new(),
+            params: Vec::new(),
         }
     }
-    pub fn vf(mut self, vf: VideoFilter) -> FFmpegArgs {
-        self.vf = Some(vf);
+    pub fn f(mut self, format: &str) -> FFmpegArgs {
+        self.params
+            .append(&mut vec!["-f".to_string(), format.to_string()]);
         self
     }
-    pub fn filter(mut self, vf: VideoFilter) -> FFmpegArgs {
-        self.filter_complex.push(vf);
+    pub fn framerate(mut self) -> FFmpegArgs {
+        self.params.append(&mut vec![
+            "-framerate".to_string(),
+            match self.argv.cmd {
+                SubPacker::Compress { fps, .. } => fps,
+                _ => 60,
+            }
+            .to_string(),
+        ]);
+        self
+    }
+    pub fn i(mut self, input: &str) -> FFmpegArgs {
+        self.params
+            .append(&mut vec!["-i".to_string(), input.to_string()]);
+        self
+    }
+    pub fn map(mut self, map: &str) -> FFmpegArgs {
+        self.params
+            .append(&mut vec!["-map".to_string(), map.to_string()]);
+        self
+    }
+    pub fn raw(mut self, raw_params: &str) -> FFmpegArgs {
+        self.params.append(&mut vec![raw_params.to_string()]);
+        self
+    }
+    pub fn raw_str(mut self, raw_str_params: String) -> FFmpegArgs {
+        self.params.append(&mut vec![raw_str_params]);
+        self
+    }
+    pub fn vf(mut self, vf: VideoFilter) -> FFmpegArgs {
+        self.filters.push(vf);
+        self
+    }
+    pub fn build_filter(mut self) -> FFmpegArgs {
+        self.params.append(&mut match self.filters.len() {
+            0 => vec![],
+            1 => vec!["-vf".to_string(), self.filters[0].to_string()],
+            _ => vec![
+                "-filter_complex".to_string(),
+                self.filters
+                    .iter()
+                    .map(|arg| arg.to_string())
+                    .collect::<Vec<_>>()
+                    .join(";"),
+            ],
+        });
+        self.filters.clear();
         self
     }
     pub fn build(self, default: Option<FFmpegDefaultArgs>) -> ArgsResult<Vec<String>> {
@@ -111,26 +173,17 @@ impl FFmpegArgs {
                     "error"
                 },
             ],
-            Some(FFmpegDefaultArgs::General) => vec!["-stats"],
-        });
-        let filter_params = match self.vf {
-            Some(filter) => vec!["-vf".to_string(), filter.to_string()],
-            None => {
-                if self.filter_complex.len() > 0 {
-                    vec![
-                        "-filter_complex".to_string(),
-                        self.filter_complex
-                            .iter()
-                            .map(|arg| arg.to_string())
-                            .collect::<Vec<_>>()
-                            .join(";"),
-                    ]
+            Some(FFmpegDefaultArgs::General) => vec![
+                "-loglevel",
+                if self.argv.verbosity.log_level() > LogLevel::Info {
+                    "warning"
                 } else {
-                    vec![]
-                }
-            }
-        };
-        args.append(&mut filter_params.iter().map(AsRef::as_ref).collect());
+                    "error"
+                },
+                "-stats",
+            ],
+        });
+        args.append(&mut self.params.iter().map(AsRef::as_ref).collect());
         Ok(args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>())
     }
 }
