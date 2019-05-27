@@ -1,14 +1,6 @@
 use crate::utils::{Fail, LogLevel, Packer, StructOpt, SubPacker};
 use std::fmt;
 
-#[derive(Debug, Fail)]
-pub enum ArgsError {
-    #[fail(display = "未知错误: {}", name)]
-    UnknownError { name: String },
-}
-
-pub type ArgsResult<T> = Result<T, ArgsError>;
-
 struct VideoFilterParams {
     key: String,
     value: Option<String>,
@@ -161,7 +153,7 @@ impl FFmpegArgs {
         self.filters.clear();
         self
     }
-    pub fn build(self, default: Option<FFmpegDefaultArgs>) -> ArgsResult<Vec<String>> {
+    pub fn build(self, default: Option<FFmpegDefaultArgs>) -> Vec<String> {
         let mut args = vec!["-hide_banner", "-y"];
         args.append(&mut match default {
             None | Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
@@ -184,6 +176,6 @@ impl FFmpegArgs {
             ],
         });
         args.append(&mut self.params.iter().map(AsRef::as_ref).collect());
-        Ok(args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>())
+        args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>()
     }
 }
