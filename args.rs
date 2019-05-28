@@ -1,4 +1,4 @@
-use crate::utils::{Fail, LogLevel, Packer, StructOpt, SubPacker};
+use crate::utils::{LogLevel, Packer, StructOpt, SubPacker};
 use std::fmt;
 
 struct VideoFilterParams {
