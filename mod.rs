@@ -1,14 +1,16 @@
 mod args;
+mod filter;
+mod preset;
 
-pub use args::FFmpegDefaultArgs;
-use args::{FFmpegArgs, VideoFilter};
+pub use args::{FFmpegArgs, FFmpegDefaultArgs};
+pub use filter::VideoFilter;
+pub use preset::VideoPreset;
 
 pub fn info(default: Option<FFmpegDefaultArgs>) -> Vec<String> {
-    let filter =
-        VideoFilter::new("0".to_string(), "1".to_string()).params("test".to_string(), None);
-    let filter2 = VideoFilter::new_str("", "")
-        .params_str("alpha", "qwlidouoasd:asdsd")
-        .params("sddd".to_string(), None);
+    let filter = VideoFilter::new().input(0).output(1).params("test", "");
+    let filter2 = VideoFilter::new()
+        .params("alpha", "qwlidouoasd:asdsd")
+        .params("sddd".to_string(), "None");
     FFmpegArgs::new()
         .vf(filter)
         // .vf(filter2)
@@ -17,15 +19,4 @@ pub fn info(default: Option<FFmpegDefaultArgs>) -> Vec<String> {
         .vf(filter2)
         .build_filter()
         .build(default)
-}
-
-pub fn pack(output: String) -> Vec<String> {
-    FFmpegArgs::new()
-        .framerate()
-        .f("image2pipe")
-        .i("pipe:")
-        .map("[out]")
-        .raw("vcodec")
-        .raw_str(output)
-        .build(Some(FFmpegDefaultArgs::General))
 }
