@@ -1,4 +1,5 @@
 use std::fmt;
+
 #[derive(Clone)]
 pub struct VideoFilterParams {
     key: Option<String>,
@@ -103,6 +104,7 @@ impl ToString for VideoFilterParams {
     }
 }
 
+#[derive(Clone)]
 pub struct VideoFilter {
     inputs: Vec<String>,
     outputs: Vec<String>,
@@ -149,6 +151,16 @@ impl VideoFilter {
     {
         self.params.push(VideoFilterParams::kv(key, value));
         self
+    }
+    pub fn ok_or<F>(self, cond: bool, func: F) -> Self
+    where
+        F: Fn(Self) -> Self,
+    {
+        if cond {
+            func(self)
+        } else {
+            self
+        }
     }
     fn vec_conv(&self, vec: &Vec<String>) -> String {
         self.vec_filter(vec)
