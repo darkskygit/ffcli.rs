@@ -3,7 +3,7 @@ mod filter;
 mod preset;
 
 pub use args::{FFmpegArgs, FFmpegDefaultArgs};
-pub use filter::VideoFilter;
+pub use filter::{VideoFilter, VideoFilterParams};
 pub use preset::VideoPreset;
 
 pub fn info(default: Option<FFmpegDefaultArgs>) -> Vec<String> {
