@@ -1,5 +1,5 @@
 use super::{VideoFilter, VideoPreset};
-use crate::utils::{Args, LogLevel};
+use crate::utils::{ARGS, LogLevel};
 
 pub enum FFmpegDefaultArgs {
     None,
@@ -27,7 +27,7 @@ impl FFmpegArgs {
     pub fn framerate(mut self) -> Self {
         self.params.append(&mut vec![
             "-framerate".to_string(),
-            Args.get_fps().to_string(),
+            ARGS.get_fps().to_string(),
         ]);
         self
     }
@@ -95,7 +95,7 @@ impl FFmpegArgs {
             None | Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
             Some(FFmpegDefaultArgs::Quiet) => vec![
                 "-loglevel",
-                if Args.verbosity.log_level() > LogLevel::Info {
+                if ARGS.verbosity.log_level() > LogLevel::Info {
                     "warning"
                 } else {
                     "error"
@@ -103,7 +103,7 @@ impl FFmpegArgs {
             ],
             Some(FFmpegDefaultArgs::General) => vec![
                 "-loglevel",
-                if Args.verbosity.log_level() > LogLevel::Info {
+                if ARGS.verbosity.log_level() > LogLevel::Info {
                     "warning"
                 } else {
                     "error"
