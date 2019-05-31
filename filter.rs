@@ -92,7 +92,7 @@ impl ToString for VideoFilterParams {
                         .cloned()
                         .map(|params| params.is_sub_params().to_string())
                         .collect::<Vec<_>>()
-                        .join(",")
+                        .join(":")
                 )
             } else {
                 format!("{}", key)
@@ -133,6 +133,13 @@ impl VideoFilter {
     }
     pub fn params_raw(mut self, params: VideoFilterParams) -> Self {
         self.params.push(params);
+        self
+    }
+    pub fn params_key<K>(mut self, key: K) -> Self
+    where
+        K: ToString,
+    {
+        self.params.push(VideoFilterParams::new().key(key));
         self
     }
     pub fn params<K, V>(mut self, key: K, value: V) -> Self
@@ -182,7 +189,7 @@ impl fmt::Display for VideoFilter {
                 .iter()
                 .map(|filter| filter.to_string())
                 .collect::<Vec<_>>()
-                .join(";")
+                .join(",")
         } else {
             "nullsink".to_string()
         };
