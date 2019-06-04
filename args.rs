@@ -19,9 +19,26 @@ impl FFmpegArgs {
             params: Vec::new(),
         }
     }
+    pub fn attach(mut self, format: &str) -> Self {
+        self.params
+            .append(&mut vec!["-attach".to_string(), format.to_string()]);
+        self
+    }
     pub fn f(mut self, format: &str) -> Self {
         self.params
             .append(&mut vec!["-f".to_string(), format.to_string()]);
+        self
+    }
+    pub fn fflags(mut self, param: &str) -> Self {
+        self.params
+            .append(&mut vec!["-fflags".to_string(), param.to_string()]);
+        self
+    }
+    pub fn flags(mut self, prefix: &str, param: &str) -> Self {
+        self.params.append(&mut vec![
+            format!("-flags:{}", prefix).to_string(),
+            param.to_string(),
+        ]);
         self
     }
     pub fn framerate(mut self) -> Self {
@@ -39,6 +56,20 @@ impl FFmpegArgs {
     pub fn map(mut self, map: &str) -> Self {
         self.params
             .append(&mut vec!["-map".to_string(), map.to_string()]);
+        self
+    }
+    pub fn map_metadata(mut self, map_metadata: &str) -> Self {
+        self.params.append(&mut vec![
+            "-map_metadata".to_string(),
+            map_metadata.to_string(),
+        ]);
+        self
+    }
+    pub fn metadata(mut self, prefix: &str, param: &str) -> Self {
+        self.params.append(&mut vec![
+            format!("-metadata:{}", prefix).to_string(),
+            param.to_string(),
+        ]);
         self
     }
     pub fn preset(mut self, preset: VideoPreset) -> Self {
