@@ -18,7 +18,7 @@ impl VideoFilterParams {
         }
     }
 
-    pub fn is_sub_params(mut self) -> Self {
+    pub fn sub_params(mut self) -> Self {
         self.is_sub_params = true;
         self
     }
@@ -45,7 +45,7 @@ impl VideoFilterParams {
     {
         let value = value.to_string();
         self.params = None;
-        self.value = if value.len() > 0 { Some(value) } else { None };
+        self.value = if value.is_empty() { None } else { Some(value) };
         self
     }
 
@@ -91,12 +91,12 @@ impl ToString for VideoFilterParams {
                     params
                         .iter()
                         .cloned()
-                        .map(|params| params.is_sub_params().to_string())
+                        .map(|params| params.sub_params().to_string())
                         .collect::<Vec<_>>()
                         .join(":")
                 )
             } else {
-                format!("{}", key)
+                key.to_string()
             }
         } else {
             "".to_owned()
@@ -162,16 +162,16 @@ impl VideoFilter {
             self
         }
     }
-    fn vec_conv(&self, vec: &Vec<String>) -> String {
+    fn vec_conv(&self, vec: &[String]) -> String {
         self.vec_filter(vec)
             .iter()
             .map(|item| format!("[{}]", item))
             .collect::<Vec<_>>()
             .join("")
     }
-    fn vec_filter(&self, vec: &Vec<String>) -> Vec<String> {
+    fn vec_filter(&self, vec: &[String]) -> Vec<String> {
         vec.iter()
-            .filter(|item| item.len() > 0)
+            .filter(|item| !item.is_empty())
             .cloned()
             .collect::<Vec<_>>()
     }
@@ -192,14 +192,14 @@ impl VideoFilter {
 impl fmt::Display for VideoFilter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (has_in, has_out, has_params) = (
-            self.get_inputs().len() > 0,
-            self.get_outputs().len() > 0,
-            self.params.len() > 0,
+            !self.get_inputs().is_empty(),
+            !self.get_outputs().is_empty(),
+            !self.params.is_empty(),
         );
         let filter = if has_params {
             self.params
                 .iter()
-                .map(|filter| filter.to_string())
+                .map(ToString::to_string)
                 .collect::<Vec<_>>()
                 .join(",")
         } else {

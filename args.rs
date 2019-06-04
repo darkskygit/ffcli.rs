@@ -1,5 +1,5 @@
 use super::{VideoFilter, VideoPreset};
-use crate::utils::{ARGS, LogLevel};
+use crate::utils::{LogLevel, ARGS};
 
 pub enum FFmpegDefaultArgs {
     None,
@@ -81,7 +81,7 @@ impl FFmpegArgs {
                 "-filter_complex".to_string(),
                 self.filters
                     .iter()
-                    .map(|arg| arg.to_string())
+                    .map(ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(";"),
             ],
@@ -112,6 +112,6 @@ impl FFmpegArgs {
             ],
         });
         args.append(&mut self.params.iter().map(AsRef::as_ref).collect());
-        args.iter().map(|arg| arg.to_string()).collect::<Vec<_>>()
+        args.iter().map(ToString::to_string).collect::<Vec<_>>()
     }
 }
