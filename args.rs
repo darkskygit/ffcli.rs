@@ -24,6 +24,13 @@ impl FFmpegArgs {
             .append(&mut vec!["-attach".to_string(), format.to_string()]);
         self
     }
+    pub fn dump_attachment(mut self, prefix: &str, output: &str) -> Self {
+      self.params.append(&mut vec![
+            format!("-dump_attachment:{}", prefix).to_string(),
+            output.to_string(),
+        ]);
+        self
+    }
     pub fn f(mut self, format: &str) -> Self {
         self.params
             .append(&mut vec!["-f".to_string(), format.to_string()]);
@@ -123,7 +130,7 @@ impl FFmpegArgs {
     pub fn build(self, default: Option<FFmpegDefaultArgs>) -> Vec<String> {
         let mut args = vec!["-hide_banner", "-y"];
         args.append(&mut match default {
-            None | Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
+            Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
             Some(FFmpegDefaultArgs::Quiet) => vec![
                 "-loglevel",
                 if ARGS.verbosity.log_level() > LogLevel::Info {
@@ -141,6 +148,7 @@ impl FFmpegArgs {
                 },
                 "-stats",
             ],
+            None => vec![],
         });
         args.append(&mut self.params.iter().map(AsRef::as_ref).collect());
         args.iter().map(ToString::to_string).collect::<Vec<_>>()
