@@ -25,7 +25,7 @@ impl FFmpegArgs {
         self
     }
     pub fn dump_attachment(mut self, prefix: &str, output: &str) -> Self {
-      self.params.append(&mut vec![
+        self.params.append(&mut vec![
             format!("-dump_attachment:{}", prefix).to_string(),
             output.to_string(),
         ]);
@@ -114,7 +114,14 @@ impl FFmpegArgs {
     pub fn build_filter(mut self) -> Self {
         self.params.append(&mut match self.filters.len() {
             0 => vec![],
-            1 => vec!["-vf".to_string(), self.filters[0].to_string()],
+            1 => {
+                if self.filters[0].get_inputs().len() > 1 || self.filters[0].get_outputs().len() > 1
+                {
+                    vec!["-filter_complex".to_string(), self.filters[0].to_string()]
+                } else {
+                    vec!["-vf".to_string(), self.filters[0].to_string()]
+                }
+            }
             _ => vec![
                 "-filter_complex".to_string(),
                 self.filters
