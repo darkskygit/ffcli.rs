@@ -175,10 +175,10 @@ impl VideoFilter {
             .cloned()
             .collect::<Vec<_>>()
     }
-    fn get_inputs(&self) -> Vec<String> {
+    pub fn get_inputs(&self) -> Vec<String> {
         self.vec_filter(&self.inputs)
     }
-    fn get_outputs(&self) -> Vec<String> {
+    pub fn get_outputs(&self) -> Vec<String> {
         self.vec_filter(&self.outputs)
     }
     fn get_input(&self) -> String {
