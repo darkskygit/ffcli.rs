@@ -24,6 +24,15 @@ impl FFmpegArgs {
             .append(&mut vec!["-attach".to_string(), format.to_string()]);
         self
     }
+    pub fn c(mut self, format: &str, prefix: &str) -> Self {
+        if prefix.len() > 0 {
+            self.params
+                .append(&mut vec![format!("-c:{}", prefix), format.to_string()]);
+        } else {
+            self.params.append(&mut vec!["-c".to_string(), format.to_string()]);
+        }
+        self
+    }
     pub fn dump_attachment(mut self, prefix: &str, output: &str) -> Self {
         self.params.append(&mut vec![
             format!("-dump_attachment:{}", prefix).to_string(),
