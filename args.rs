@@ -25,7 +25,7 @@ impl FFmpegArgs {
         self
     }
     pub fn c(mut self, format: &str, prefix: &str) -> Self {
-        if prefix.len() > 0 {
+        if !prefix.is_empty() {
             self.params
                 .append(&mut vec![format!("-c:{}", prefix), format.to_string()]);
         } else {
