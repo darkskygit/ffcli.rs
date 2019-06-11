@@ -29,7 +29,8 @@ impl FFmpegArgs {
             self.params
                 .append(&mut vec![format!("-c:{}", prefix), format.to_string()]);
         } else {
-            self.params.append(&mut vec!["-c".to_string(), format.to_string()]);
+            self.params
+                .append(&mut vec!["-c".to_string(), format.to_string()]);
         }
         self
     }
@@ -118,6 +119,11 @@ impl FFmpegArgs {
     }
     pub fn vf(mut self, vf: VideoFilter) -> Self {
         self.filters.push(vf);
+        self
+    }
+    pub fn vsync(mut self, param: &str) -> Self {
+        self.params
+            .append(&mut vec!["-vsync".to_string(), param.to_string()]);
         self
     }
     pub fn build_filter(mut self) -> Self {
