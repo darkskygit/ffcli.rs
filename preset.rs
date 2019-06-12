@@ -7,7 +7,7 @@ pub enum FFmpegError {
     PresetUnknown { name: String },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 pub enum VideoPreset {
     Placebo,
     VerySlow,
