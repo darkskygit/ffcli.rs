@@ -8,13 +8,17 @@ pub enum FFmpegDefaultArgs {
 }
 
 pub struct FFmpegArgs {
+    default_args: Option<FFmpegDefaultArgs>,
     filters: Vec<VideoFilter>,
+    log_level: LogLevel,
     params: Vec<String>,
 }
 
 impl FFmpegArgs {
     pub fn new() -> Self {
         FFmpegArgs {
+            default_args: Some(FFmpegDefaultArgs::General),
+            log_level: ARGS.verbosity.log_level(),
             filters: Vec::new(),
             params: Vec::new(),
         }
@@ -25,6 +29,11 @@ impl FFmpegArgs {
         T: ToString,
     {
         self.params.push(param.to_string());
+        self
+    }
+
+    pub fn default_args(mut self, default_args: Option<FFmpegDefaultArgs>) -> Self {
+        self.default_args = default_args;
         self
     }
 
@@ -48,6 +57,7 @@ impl FFmpegArgs {
         }
         .append_params(format)
     }
+
     pub fn dump_attachment<P, O>(self, prefix: P, output: O) -> Self
     where
         P: ToString,
@@ -56,18 +66,21 @@ impl FFmpegArgs {
         self.append_params(format!("-dump_attachment:{}", prefix.to_string()))
             .append_params(output)
     }
+
     pub fn f<T>(self, format: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-f").append_params(format)
     }
+
     pub fn fflags<T>(self, param: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-fflags").append_params(param)
     }
+
     pub fn flags<P1, P2>(self, prefix: P1, param: P2) -> Self
     where
         P1: ToString,
@@ -76,24 +89,28 @@ impl FFmpegArgs {
         self.append_params(format!("-flags:{}", prefix.to_string()))
             .append_params(param)
     }
+
     pub fn framerate<T>(self, fps: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-framerate").append_params(fps)
     }
+
     pub fn i<T>(self, input: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-i").append_params(input)
     }
+
     pub fn map<T>(self, map: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-map").append_params(map)
     }
+
     pub fn map_metadata<T>(self, map_metadata: T) -> Self
     where
         T: ToString,
@@ -101,6 +118,7 @@ impl FFmpegArgs {
         self.append_params("-map_metadata")
             .append_params(map_metadata)
     }
+
     pub fn metadata<P1, P2>(self, prefix: P1, param: P2) -> Self
     where
         P1: ToString,
@@ -109,30 +127,35 @@ impl FFmpegArgs {
         self.append_params(format!("-metadata:{}", prefix.to_string()))
             .append_params(param)
     }
+
     pub fn profile<T>(self, profile: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-profile").append_params(profile)
     }
+
     pub fn q<T>(self, q: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-q").append_params(q)
     }
+
     pub fn raw<T>(self, raw_param: T) -> Self
     where
         T: ToString,
     {
         self.append_params(raw_param)
     }
+
     pub fn vcodec<T>(self, vcodec: T) -> Self
     where
         T: ToString,
     {
         self.append_params("-vcodec").append_params(vcodec)
     }
+
     pub fn vsync<T>(self, param: T) -> Self
     where
         T: ToString,
@@ -180,13 +203,13 @@ impl FFmpegArgs {
         }
     }
 
-    pub fn build(self, default: Option<FFmpegDefaultArgs>) -> Vec<String> {
+    pub fn build(self) -> Vec<String> {
         let mut args = vec!["-hide_banner", "-y"];
-        args.append(&mut match default {
+        args.append(&mut match self.default_args {
             Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
             Some(FFmpegDefaultArgs::Quiet) => vec![
                 "-loglevel",
-                if ARGS.verbosity.log_level() > LogLevel::Info {
+                if self.log_level > LogLevel::Info {
                     "warning"
                 } else {
                     "error"
@@ -194,7 +217,7 @@ impl FFmpegArgs {
             ],
             Some(FFmpegDefaultArgs::General) => vec![
                 "-loglevel",
-                if ARGS.verbosity.log_level() > LogLevel::Info {
+                if self.log_level > LogLevel::Info {
                     "warning"
                 } else {
                     "error"
