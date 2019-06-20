@@ -19,136 +19,167 @@ impl FFmpegArgs {
             params: Vec::new(),
         }
     }
-    pub fn attach(mut self, format: &str) -> Self {
-        self.params
-            .append(&mut vec!["-attach".to_string(), format.to_string()]);
+
+    fn append_params<T>(mut self, param: T) -> Self
+    where
+        T: ToString,
+    {
+        self.params.push(param.to_string());
         self
     }
-    pub fn c(mut self, format: &str, prefix: &str) -> Self {
+
+    pub fn attach<T>(self, format: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-attach").append_params(format)
+    }
+
+    pub fn c<F, P>(self, format: F, prefix: P) -> Self
+    where
+        F: ToString,
+        P: ToString,
+    {
+        let prefix = prefix.to_string();
         if !prefix.is_empty() {
-            self.params
-                .append(&mut vec![format!("-c:{}", prefix), format.to_string()]);
+            self.append_params(format!("-c:{}", prefix))
         } else {
-            self.params
-                .append(&mut vec!["-c".to_string(), format.to_string()]);
+            self.append_params("-c")
         }
-        self
+        .append_params(format)
     }
-    pub fn dump_attachment(mut self, prefix: &str, output: &str) -> Self {
-        self.params.append(&mut vec![
-            format!("-dump_attachment:{}", prefix).to_string(),
-            output.to_string(),
-        ]);
-        self
+    pub fn dump_attachment<P, O>(self, prefix: P, output: O) -> Self
+    where
+        P: ToString,
+        O: ToString,
+    {
+        self.append_params(format!("-dump_attachment:{}", prefix.to_string()))
+            .append_params(output)
     }
-    pub fn f(mut self, format: &str) -> Self {
-        self.params
-            .append(&mut vec!["-f".to_string(), format.to_string()]);
-        self
+    pub fn f<T>(self, format: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-f").append_params(format)
     }
-    pub fn fflags(mut self, param: &str) -> Self {
-        self.params
-            .append(&mut vec!["-fflags".to_string(), param.to_string()]);
-        self
+    pub fn fflags<T>(self, param: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-fflags").append_params(param)
     }
-    pub fn flags(mut self, prefix: &str, param: &str) -> Self {
-        self.params.append(&mut vec![
-            format!("-flags:{}", prefix).to_string(),
-            param.to_string(),
-        ]);
-        self
+    pub fn flags<P1, P2>(self, prefix: P1, param: P2) -> Self
+    where
+        P1: ToString,
+        P2: ToString,
+    {
+        self.append_params(format!("-flags:{}", prefix.to_string()))
+            .append_params(param)
     }
-    pub fn framerate(mut self) -> Self {
-        self.params.append(&mut vec![
-            "-framerate".to_string(),
-            ARGS.get_fps().to_string(),
-        ]);
-        self
+    pub fn framerate<T>(self, fps: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-framerate").append_params(fps)
     }
-    pub fn i(mut self, input: &str) -> Self {
-        self.params
-            .append(&mut vec!["-i".to_string(), input.to_string()]);
-        self
+    pub fn i<T>(self, input: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-i").append_params(input)
     }
-    pub fn map(mut self, map: &str) -> Self {
-        self.params
-            .append(&mut vec!["-map".to_string(), map.to_string()]);
-        self
+    pub fn map<T>(self, map: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-map").append_params(map)
     }
-    pub fn map_metadata(mut self, map_metadata: &str) -> Self {
-        self.params.append(&mut vec![
-            "-map_metadata".to_string(),
-            map_metadata.to_string(),
-        ]);
-        self
+    pub fn map_metadata<T>(self, map_metadata: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-map_metadata")
+            .append_params(map_metadata)
     }
-    pub fn metadata(mut self, prefix: &str, param: &str) -> Self {
-        self.params.append(&mut vec![
-            format!("-metadata:{}", prefix).to_string(),
-            param.to_string(),
-        ]);
-        self
+    pub fn metadata<P1, P2>(self, prefix: P1, param: P2) -> Self
+    where
+        P1: ToString,
+        P2: ToString,
+    {
+        self.append_params(format!("-metadata:{}", prefix.to_string()))
+            .append_params(param)
     }
-    pub fn preset(mut self, preset: VideoPreset) -> Self {
-        self.params
-            .append(&mut vec!["-preset".to_string(), preset.to_string()]);
-        self
+    pub fn profile<T>(self, profile: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-profile").append_params(profile)
     }
-    pub fn profile(mut self, profile: &str) -> Self {
-        self.params
-            .append(&mut vec!["-profile".to_string(), profile.to_string()]);
-        self
+    pub fn q<T>(self, q: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-q").append_params(q)
     }
-    pub fn q(mut self, q: u8) -> Self {
-        self.params
-            .append(&mut vec!["-q".to_string(), q.to_string()]);
-        self
+    pub fn raw<T>(self, raw_param: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params(raw_param)
     }
-    pub fn raw(mut self, raw_params: &str) -> Self {
-        self.params.append(&mut vec![raw_params.to_string()]);
-        self
+    pub fn vcodec<T>(self, vcodec: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-vcodec").append_params(vcodec)
     }
-    pub fn raw_str(mut self, raw_str_params: String) -> Self {
-        self.params.append(&mut vec![raw_str_params]);
-        self
+    pub fn vsync<T>(self, param: T) -> Self
+    where
+        T: ToString,
+    {
+        self.append_params("-vsync").append_params(param)
     }
-    pub fn vcodec(mut self, vcodec: &str) -> Self {
-        self.params
-            .append(&mut vec!["-vcodec".to_string(), vcodec.to_string()]);
-        self
+
+    pub fn preset(self, preset: VideoPreset) -> Self {
+        self.append_params("-preset").append_params(preset)
     }
+
     pub fn vf(mut self, vf: VideoFilter) -> Self {
         self.filters.push(vf);
         self
     }
-    pub fn vsync(mut self, param: &str) -> Self {
-        self.params
-            .append(&mut vec!["-vsync".to_string(), param.to_string()]);
-        self
-    }
-    pub fn build_filter(mut self) -> Self {
-        self.params.append(&mut match self.filters.len() {
-            0 => vec![],
-            1 => {
-                if self.filters[0].get_inputs().len() > 1 || self.filters[0].get_outputs().len() > 1
-                {
-                    vec!["-filter_complex".to_string(), self.filters[0].to_string()]
-                } else {
-                    vec!["-vf".to_string(), self.filters[0].to_string()]
-                }
-            }
-            _ => vec![
-                "-filter_complex".to_string(),
-                self.filters
-                    .iter()
-                    .map(ToString::to_string)
-                    .collect::<Vec<_>>()
-                    .join(";"),
-            ],
-        });
+
+    fn clear_filter(mut self) -> Self {
         self.filters.clear();
         self
     }
+
+    pub fn build_filter(self) -> Self {
+        if !self.filters.is_empty() {
+            let filters = &self.filters.clone();
+            match self.filters.len() {
+                1 => if self.filters[0].get_inputs().len() > 1
+                    || self.filters[0].get_outputs().len() > 1
+                {
+                    self.append_params("-filter_complex")
+                } else {
+                    self.append_params("-vf")
+                }
+                .append_params(filters[0].clone()),
+                _ => self.append_params("-filter_complex").append_params(
+                    filters
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join(";"),
+                ),
+            }
+            .clear_filter()
+        } else {
+            self
+        }
+    }
+
     pub fn build(self, default: Option<FFmpegDefaultArgs>) -> Vec<String> {
         let mut args = vec!["-hide_banner", "-y"];
         args.append(&mut match default {
