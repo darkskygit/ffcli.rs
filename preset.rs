@@ -49,15 +49,15 @@ impl FromStr for VideoPreset {
 impl ToString for VideoPreset {
     fn to_string(&self) -> String {
         match &self {
-            VideoPreset::Placebo => "placebo".to_owned(),
-            VideoPreset::VerySlow => "veryslow".to_owned(),
-            VideoPreset::Slower => "slower".to_owned(),
-            VideoPreset::Slow => "slow".to_owned(),
-            VideoPreset::Medium => "medium".to_owned(),
-            VideoPreset::Fast => "fast".to_owned(),
-            VideoPreset::Faster => "faster".to_owned(),
-            VideoPreset::VeryFast => "veryfast".to_owned(),
-            VideoPreset::UltraFast => "ultrafast".to_owned(),
-        }
+            VideoPreset::Placebo => "placebo",
+            VideoPreset::VerySlow => "veryslow",
+            VideoPreset::Slower => "slower",
+            VideoPreset::Slow => "slow",
+            VideoPreset::Medium => "medium",
+            VideoPreset::Fast => "fast",
+            VideoPreset::Faster => "faster",
+            VideoPreset::VeryFast => "veryfast",
+            VideoPreset::UltraFast => "ultrafast",
+        }.into()
     }
 }

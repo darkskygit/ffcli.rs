@@ -96,10 +96,10 @@ impl ToString for VideoFilterParams {
                         .join(":")
                 )
             } else {
-                key.to_string()
+                key.into()
             }
         } else {
-            "".to_owned()
+            "".into()
         }
     }
 }
