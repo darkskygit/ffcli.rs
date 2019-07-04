@@ -18,7 +18,7 @@ impl FFmpegArgs {
     pub fn new() -> Self {
         FFmpegArgs {
             default_args: Some(FFmpegDefaultArgs::General),
-            log_level: ARGS.verbosity.log_level(),
+            log_level: ARGS.lock().unwrap().get_verbosity().log_level(),
             filters: Vec::new(),
             params: Vec::new(),
         }

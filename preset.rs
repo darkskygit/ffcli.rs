@@ -58,6 +58,7 @@ impl ToString for VideoPreset {
             VideoPreset::Faster => "faster",
             VideoPreset::VeryFast => "veryfast",
             VideoPreset::UltraFast => "ultrafast",
-        }.into()
+        }
+        .into()
     }
 }
