@@ -1,4 +1,4 @@
-use crate::utils::Fail;
+use failure::Fail;
 use std::str::FromStr;
 
 #[derive(Debug, Fail)]

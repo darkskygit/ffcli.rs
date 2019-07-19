@@ -1,5 +1,5 @@
-use super::{VideoFilter, VideoPreset};
-use crate::utils::{LogLevel, ARGS};
+use super::*;
+use log::Level;
 
 pub enum FFmpegDefaultArgs {
     None,
@@ -10,15 +10,15 @@ pub enum FFmpegDefaultArgs {
 pub struct FFmpegArgs {
     default_args: Option<FFmpegDefaultArgs>,
     filters: Vec<VideoFilter>,
-    log_level: LogLevel,
+    log_level: Level,
     params: Vec<String>,
 }
 
 impl FFmpegArgs {
-    pub fn new() -> Self {
+    pub fn new(log_level: Level) -> Self {
         FFmpegArgs {
             default_args: Some(FFmpegDefaultArgs::General),
-            log_level: ARGS.read().unwrap().get_verbosity().log_level(),
+            log_level,
             filters: Vec::new(),
             params: Vec::new(),
         }
@@ -209,7 +209,7 @@ impl FFmpegArgs {
             Some(FFmpegDefaultArgs::None) => vec!["-loglevel", "quiet"],
             Some(FFmpegDefaultArgs::Quiet) => vec![
                 "-loglevel",
-                if self.log_level > LogLevel::Info {
+                if self.log_level > Level::Info {
                     "warning"
                 } else {
                     "error"
@@ -217,7 +217,7 @@ impl FFmpegArgs {
             ],
             Some(FFmpegDefaultArgs::General) => vec![
                 "-loglevel",
-                if self.log_level > LogLevel::Info {
+                if self.log_level > Level::Info {
                     "warning"
                 } else {
                     "error"
