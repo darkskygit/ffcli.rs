@@ -3,8 +3,9 @@ name = "ffcli"
 version = "0.1.0"
 authors = ["DarkSky"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A ffmpeg cli args builder"
+include = ["src/**/*", "Cargo.toml"]
+license = "AGPL-3.0-or-later"
 
 [dependencies]
 failure = "0.1.5"
