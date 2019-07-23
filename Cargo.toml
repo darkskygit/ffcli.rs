@@ -4,8 +4,12 @@ version = "0.1.0"
 authors = ["DarkSky"]
 edition = "2018"
 description = "A ffmpeg cli args builder"
-include = ["src/**/*", "Cargo.toml"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 license = "AGPL-3.0-or-later"
+homepage = "https://github.com/darkskygit/ffcli.rs"
+readme = "README.md"
+keywords = ["ffmpeg", "cli", "args", "builder"]
+repository = "https://github.com/darkskygit/ffcli.rs"
 
 [dependencies]
 failure = "0.1.5"
