@@ -10,6 +10,7 @@ homepage = "https://github.com/darkskygit/ffcli.rs"
 readme = "README.md"
 keywords = ["ffmpeg", "cli", "args", "builder"]
 repository = "https://github.com/darkskygit/ffcli.rs"
+categories = ["command-line-interface"]
 
 [dependencies]
 failure = "0.1.5"
