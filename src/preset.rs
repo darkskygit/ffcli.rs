@@ -7,7 +7,7 @@ pub enum FFmpegError {
     PresetUnknown { name: String },
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, PartialOrd)]
 pub enum VideoPreset {
     Placebo,
     VerySlow,
@@ -17,6 +17,7 @@ pub enum VideoPreset {
     Fast,
     Faster,
     VeryFast,
+    SuperFast,
     UltraFast,
 }
 
@@ -38,6 +39,7 @@ impl FromStr for VideoPreset {
             "fast" => Ok(VideoPreset::Fast),
             "faster" => Ok(VideoPreset::Faster),
             "veryfast" => Ok(VideoPreset::VeryFast),
+            "superfast" => Ok(VideoPreset::SuperFast),
             "ultrafast" => Ok(VideoPreset::UltraFast),
             _ => Err(FFmpegError::PresetUnknown {
                 name: s.to_string(),
@@ -57,6 +59,7 @@ impl ToString for VideoPreset {
             VideoPreset::Fast => "fast",
             VideoPreset::Faster => "faster",
             VideoPreset::VeryFast => "veryfast",
+            VideoPreset::SuperFast => "superfast",
             VideoPreset::UltraFast => "ultrafast",
         }
         .into()
