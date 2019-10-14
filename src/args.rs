@@ -119,13 +119,17 @@ impl FFmpegArgs {
             .append_params(map_metadata)
     }
 
-    pub fn metadata<P1, P2>(self, prefix: P1, param: P2) -> Self
+    pub fn metadata<P1, P2>(self, prefix: Option<P1>, param: P2) -> Self
     where
         P1: ToString,
         P2: ToString,
     {
-        self.append_params(format!("-metadata:{}", prefix.to_string()))
-            .append_params(param)
+        self.append_params(if let Some(prefix) = prefix {
+            format!("-metadata:{}", prefix.to_string())
+        } else {
+            "-metadata".to_string()
+        })
+        .append_params(param)
     }
 
     pub fn profile<T>(self, profile: T) -> Self
