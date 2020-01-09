@@ -1,6 +1,6 @@
 [package]
 name = "ffcli"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["DarkSky"]
 edition = "2018"
 description = "A ffmpeg cli args builder"

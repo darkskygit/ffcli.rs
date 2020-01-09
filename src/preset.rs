@@ -3,11 +3,11 @@ use std::str::FromStr;
 
 #[derive(Debug, Fail)]
 pub enum FFmpegError {
-    #[fail(display = "未知的参数预设: {}", name)]
+    #[fail(display = "Unknown preset: {}", name)]
     PresetUnknown { name: String },
 }
 
-#[derive(PartialEq, PartialOrd)]
+#[derive(Clone, PartialEq, PartialOrd)]
 pub enum VideoPreset {
     Placebo,
     VerySlow,
