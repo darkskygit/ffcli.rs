@@ -1,9 +1,9 @@
-use failure::Fail;
 use std::str::FromStr;
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum FFmpegError {
-    #[fail(display = "Unknown preset: {}", name)]
+    #[error("Unknown preset: {name}")]
     PresetUnknown { name: String },
 }
 

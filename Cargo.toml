@@ -1,6 +1,6 @@
 [package]
 name = "ffcli"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["DarkSky"]
 edition = "2018"
 description = "A ffmpeg cli args builder"
@@ -13,5 +13,5 @@ repository = "https://github.com/darkskygit/ffcli.rs"
 categories = ["command-line-interface"]
 
 [dependencies]
-failure = "^0.1.6"
+thiserror = "1.0.20"
 log = "^0.4.8"
